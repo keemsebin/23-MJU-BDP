@@ -19,26 +19,16 @@ for row in data:
     split_data = row.split(',')
     title = ' '.join(split_data[:-1]).strip()
 
-    # <br /> 삭제
-    title = title.replace('<br />', '')
-
     # 특수문자 및 숫자 제거
     cleaned_title = preprocess_text(title)
 
     date = split_data[-1].strip()
 
-    # 결과 출력
-    result = [cleaned_title, date]
-    print(result)
-
     # 데이터프레임에 저장
-    df = df.append({'Title': cleaned_title, 'Date': date}, ignore_index=True)
+    df = df.append({'Title': cleaned_title.split(), 'Date': date}, ignore_index=True)
 
-# 띄어쓰기를 기준으로 title 나누기
-df['Title'] = df['Title'].apply(preprocess_text)
-
-# Title 컬럼에서 띄어쓰기를 기준으로 나눈 결과를 하나의 컬럼에 넣기
-df['Title'] = df['Title'].apply(lambda x: ', '.join(x.split()))
-
-# CSV 파일로 저장
-df.to_csv('crawling_processed.csv', index=False)
+# TXT 파일로 저장
+with open('crawling_processed.txt', 'w', encoding='utf-8') as file:
+    for index, row in df.iterrows():
+        title_str = ' '.join(row['Title_List']) # 리스트를 공백으로 구분된 문자열로 변환
+        file.write(title_str + "," + row['Date'] + "\n")
