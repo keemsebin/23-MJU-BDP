@@ -1,10 +1,6 @@
-# 형태소 분석
-
 import sys
-from konlpy.tag import Okt
 
 null_count = 0
-okt = Okt()  
 
 # 매퍼
 def mapper(line):
@@ -20,10 +16,7 @@ def mapper(line):
     month = int(month)
     quarter = (month - 1) // 3 + 1  # 분기 계산
 
-    # 아래 코드 주석 처리 시 형태소 분석 없이 분석 가능
-    words = okt.nouns(words)  # 형태소 분석으로 명사 추출
-
-    for word in words:
+    for word in words.split():
         key = (quarter, word)  # 분기와 단어를 키로 사용
         if key not in mapper_out:
             mapper_out[key] = 0
@@ -58,5 +51,5 @@ for line in lines:
 reducer_out = reducer(mapper_out)
 for quarter in sorted(reducer_out.keys()):
     print(f'분기: {quarter}')
-    for word, count in reducer_out[quarter][:20]:  # 가장 많이 카운트된 단어 20개로 제한
+    for word, count in reducer_out[quarter][:20]:  # 가장 많이 카운트된 단어 20개 추출
         print(word, count)
