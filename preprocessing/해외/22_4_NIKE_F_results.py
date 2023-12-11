@@ -32,6 +32,7 @@ with open('/content/drive/MyDrive/Colab Notebooks/BDP/22_4_NIKE_F.txt', 'r') as 
 
 import pandas as pd
 import re
+import math
 
 # 숫자가 포함된 데이터만 선택
 filtered_data = [line for line in results if re.search(r'\d', line)]
@@ -78,7 +79,7 @@ for line in filtered_data:
     match = re.search(r'^(\d+(?:,\d+)*\.?\d*)$', price_info)
     if match:
         num = float(match.group(1).replace(',', ''))
-        result = round(1597.23 * num, 2)
+        result = math.floor(1597.23 * num)
         price_results.append((shop_name, product_name, result))
 
 # 파운드, 달러, 유로 처리
@@ -88,11 +89,11 @@ for line in pound_lines:
     match_back = pattern_back_pound.search(price_info)
     if match_front:
         num = float(match_front.group(1).replace(',', ''))
-        result = round(1597.23 * num, 2)
+        result =math.floor(1597.23 * num)
         price_results.append((shop_name, product_name, result))
     elif match_back:
         num = float(match_back.group(2).replace(',', ''))
-        result = round(1597.23 * num, 2)
+        result = math.floor(1597.23 * num)
         price_results.append((shop_name, product_name, result))
 
 for line in dollar_lines:
@@ -101,25 +102,25 @@ for line in dollar_lines:
     match_back = pattern_back_dollar.search(line)
     if match_front:
         num = float(match_front.group(1).replace(',', ''))
-        result = round(1358.97 * num, 2)
+        result = math.floor(1358.97 * num)
         price_results.append((shop_name, product_name, result))
     elif match_back:
         num = float(match_back.group(2).replace(',', ''))
-        result = round(1358.97 * num, 2)
+        result = math.floor(1358.97 * num)
         price_results.append((shop_name, product_name, result))
 
-      
+
 for line in euro_lines:
     shop_name, product_name, price_info = line.split(', ')
     match_front = pattern_front_euro.search(line)
     match_back = pattern_back_euro.search(line)
     if match_front:
         num = float(match_front.group(1).replace(',', ''))
-        result = round(1388.99 * num, 2)
+        result = math.floor(1388.99 * num)
         price_results.append((shop_name, product_name, result))
     elif match_back:
         num = float(match_back.group(2).replace(',', ''))
-        result = round(1388.99 * num, 2)
+        result = math.floor(1388.99 * num)
         price_results.append((shop_name, product_name, result))
 
 # 필터링된 라인에서 숫자와 '원'을 찾아 '원'을 떼고 결과에 추가
@@ -139,13 +140,31 @@ for line in filtered_data:
         result = num * 1000000
         price_results.append((shop_name, product_name, result))
 
+# 결과를 저장할 리스트
+price_results_processed = []
+
+for shop, product, price in price_results:
+    # 상품명에서 영어를 소문자로 변환
+    product = product.lower()
+
+    # '/'나 '.'을 ','로 치환
+    product = product.replace('/', ',').replace('.', ',')
+
+    # '나이키'나 'nike'를 제거
+    product = product.replace('나이키', '').replace('nike', '')
+    # '('나')' 제거
+    product = product.replace('(', '').replace(')', '')
+    # 처리가 끝난 결과를 새로운 리스트에 추가
+    price_results_processed.append((shop, product.strip(), price))
+
 # 결과 출력
 print(f'Filtered data line count: {len(filtered_data)}')
-print(f'Total result line count: {len(price_results)}')
-for result in price_results:
+print(f'Total result line count: {len(price_results_processed)}')
+
+for result in price_results_processed:
     print(result)
 
 # 결과를 파일에 저장
-with open('/content/drive/MyDrive/Colab Notebooks/BDP/22_4_NIKE_F_results.txt', 'w') as f:
-    for result in price_results:
+with open('/content/drive/MyDrive/Colab Notebooks/BDP/22_4_NIKE_F_new.txt', 'w') as f:
+    for result in price_results_processed:
         f.write(', '.join(map(str, result)) + '\n')
